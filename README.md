@@ -8,4 +8,4 @@ Avec des algorithmes de génération procédurale(algo du bruit de perlin, les g
 
 le mieux serait d'utiliser des données reelles pour generer les cartes(données météo,topograhique,geographique ou même des données historique ou culturels)
 
-La technique de Machine Learning peut aussi être trés interesante(entrainer un réseaux de neurones sur des données de carte existante pour en generer des nouvelles)
+La technique de Machine Learning peut aussi être trés interesante mais attention c'est plus compliqué mais performant(entrainer un réseaux de neurones sur des données de carte existante pour en generer des nouvelles)
