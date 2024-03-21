@@ -1,4 +1,4 @@
-Projet du 2eme semestre avec Helios et Aron.
+Projet du 2eme semestre avec Helios et Aaron.
 
 Le sujet du projet est le generateur de carte de monde fictif.
 
