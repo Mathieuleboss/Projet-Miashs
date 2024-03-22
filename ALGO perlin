@@ -1,0 +1,113 @@
+import math
+import random
+import time
+import matplotlib.pyplot as plt
+
+# Constants for Perlin noise
+PERLIN_SIZE = 256
+PERLIN_SCALE = 4
+PERSISTENCE = 0.5
+LACUNARITY = 2.0
+NUM_OCTAVES = 6
+
+# Perlin noise table
+perlin = [[0 for _ in range(PERLIN_SIZE)] for _ in range(PERLIN_SIZE)]
+
+def apply_contrast(values, factor=20):
+    min_value = min(min(row) for row in values)
+    max_value = max(max(row) for row in values)
+    new_values = [[0 for _ in range(len(values[0]))] for _ in range(len(values))]
+    for x in range(len(values)):
+        for y in range(len(values[x])):
+            new_values[x][y] = ((values[x][y] - min_value) / (max_value - min_value)) ** factor
+    return new_values
+
+# Function to linearly interpolate between a0 and a1
+def lerp(a0, a1, w):
+    return a0 + w * (a1 - a0)
+
+# Fade function for Perlin noise
+def fade(t):
+    return t ** 3 * (t * (t * 6 - 15) + 10)
+
+# Function to generate Perlin noise
+def generate_perlin_noise():
+    for i in range(PERLIN_SIZE):
+        for j in range(PERLIN_SIZE):
+            perlin[i][j] = random.random()
+
+# Function to generate a single octave of Perlin noise
+def generate_noise(width, height, scale, octave):
+    seed = int(time.time())
+    values = [[0 for _ in range(width)] for _ in range(height)]
+    for x in range(width):
+        for y in range(height):
+            value = perlin_noise((x + seed) / scale, (y + seed) / scale, octave)
+            values[x][y] = value
+    return values
+
+# Function to generate a height map using multiple octaves of Perlin noise
+def generate_height_map(width, height, scale):
+    values = [[0 for _ in range(width)] for _ in range(height)]
+    amplitude = 1
+    frequency = 1
+    for i in range(NUM_OCTAVES):
+        noise = generate_noise(width, height, scale * frequency, i)
+        for x in range(width):
+            for y in range(height):
+                values[x][y] += noise[x][y] * amplitude
+        amplitude *= PERSISTENCE
+        frequency *= LACUNARITY
+    return values
+
+# Function to calculate Perlin noise
+def perlin_noise(x, y, octave):
+    x0 = math.floor(x)
+    x1 = x0 + 1
+    y0 = math.floor(y)
+    y1 = y0 + 1
+    sx = x - x0
+    sy = y - y0
+
+    n00 = perlin[x0 & (PERLIN_SIZE - 1)][y0 & (PERLIN_SIZE - 1)]
+    n01 = perlin[x0 & (PERLIN_SIZE - 1)][y1 & (PERLIN_SIZE - 1)]
+    n10 = perlin[x1 & (PERLIN_SIZE - 1)][y0 & (PERLIN_SIZE - 1)]
+    n11 = perlin[x1 & (PERLIN_SIZE - 1)][y1 & (PERLIN_SIZE - 1)]
+
+    u = fade(sx)
+    v = fade(sy)
+    n0 = lerp(n00, n01, v)
+    n1 = lerp(n10, n11, v)
+    n = lerp(n0, n1, u)
+
+    return n if octave == 0 else n / 2 ** octave
+
+# Function to display the height map
+def display_height_map(map):
+    contrast_factor = 20
+    contrast_map = apply_contrast(map, contrast_factor)
+    
+    plt.imshow(map, cmap='viridis')
+    plt.colorbar()
+    plt.show()
+
+# Main function
+def main():
+    # Seed the random number generator
+    seed = int(time.time())
+    random.seed(seed)
+
+    # Generate the Perlin noise table
+    generate_perlin_noise()
+
+    # Generate a height map with multiple octaves of Perlin noise
+    width = 745
+    height = 745
+    scale = 25
+    map = generate_height_map(width, height, scale)
+
+    # Display the height map
+    display_height_map(map)
+
+if __name__ == '__main__':
+    main()
