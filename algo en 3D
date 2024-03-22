@@ -1,0 +1,22 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Generate a height map using Perlin noise
+height_map = generate_height_map(256, 256, 10)
+
+# Create a 3D plot of the height map
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+X, Y = np.meshgrid(np.linspace(0, 1, 256), np.linspace(0, 1, 256))
+Z = height_map
+surf = ax.plot_surface(X, Y, Z, cmap='viridis')
+
+# Set the plot title and labels
+ax.set_title('3D Terrain Generated with Perlin Noise')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Show the plot
+plt.show()
