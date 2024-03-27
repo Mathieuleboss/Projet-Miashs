@@ -1,0 +1,90 @@
+Voici une suggestion de structure de code pour le générateur de carte, organisé en modules comme décrit dans les exigences du projet.
+
+generator.py: ce module contient la logique principale de l'application, y compris la génération de terrain, la génération de structures géographiques, la visualisation de carte, le stockage de carte et l'exportation de carte. Il importe les fonctions nécessaires à partir des autres modules.
+
+
+import tkinter as tk
+from tkinter import filedialog
+import numpy as np
+import generator.terrain as terrain
+import generator.geography as geography
+import generator.visualization as visualization
+import generator.storage as storage
+import generator.export as export
+
+# Fonction pour générer une carte
+def generate_map(size, climate, elevation, population):
+    # Générer le terrain
+    height_map = terrain.generate_height_map(size, climate, elevation)
+
+    # Générer les structures géographiques
+    river_map, lake_map, forest_map = geography.generate_geography(height_map, climate, population)
+
+    # Afficher la carte
+    visualization.visualize_map(height_map, river_map, lake_map, forest_map)
+
+    # Stocker la carte dans la base de données
+    storage.store_map(height_map, river_map, lake_map, forest_map)
+
+# Fonction pour enregistrer la carte sous forme d'image
+def save_image():
+    # Récupérer les données de la carte courante
+    height_map, river_map, lake_map, forest_map = visualization.get_current_map()
+
+    # Demander à l'utilisateur de choisir un nom de fichier
+    filename = filedialog.asksaveasfilename(defaultextension='.png')
+
+    # Enregistrer l'image
+    export.save_image(height_map, river_map, lake_map, forest_map, filename)
+
+# Fonction pour exporter les données de la carte
+def export_data():
+    # Récupérer les données de la carte courante
+    height_map, river_map, lake_map, forest_map = visualization.get_current_map()
+
+    # Demander à l'utilisateur de choisir un nom de fichier et un format
+    filename = filedialog.asksaveasfilename(defaultextension='.csv')
+    format = filedialog.askstring('Format', 'Choisir un format (csv ou json)')
+
+    # Exporter les données
+    export.export_data(height_map, river_map, lake_map, forest_map, filename, format)
+
+# Créer l'interface utilisateur
+root = tk.Tk()
+root.title('Générateur de carte')
+
+# Créer les widgets pour les paramètres de génération de carte
+size_var = tk.IntVar()
+climate_var = tk.DoubleVar()
+elevation_var = tk.DoubleVar()
+population_var = tk.IntVar()
+tk.Label(root, text='Taille:').pack()
+tk.Entry(root, textvariable=size_var).pack()
+tk.Label(root, text='Climat:').pack()
+tk.Entry(root, textvariable=climate_var).pack()
+tk.Label(root, text='Élévation:').pack()
+tk.Entry(root, textvariable=elevation_var).pack()
+tk.Label(root, text='Population:').pack()
+tk.Entry(root, textvariable=population_var).pack()
+
+# Créer les boutons pour générer, enregistrer et exporter la carte
+tk.Button(root, text='Générer', command=lambda: generate_map(size_var.get(), climate_var.get(), elevation_var.get(), population_var.get())).pack()
+tk.Button(root, text='Enregistrer sous...', command=save_image).pack()
+tk.Button(root, text='Exporter les données...', command=export_data).pack()
+
+# Démarrer la boucle principale de l'application
+root.mainloop()
+terrain.py: ce module contient les fonctions pour générer le terrain à l'aide de l'algorithme de bruit de Perlin.
+
+
+import numpy as np
+import noise
+
+# Fonction pour générer une carte de hauteur
+def generate_height_map(size, climate, elevation):
+    # Générer le bruit de Perlin
+    scale = 10
+    octaves = 6
+    persistence = 0.5
+    lacunarity = 2.0
+    perlin_map = noise.pnoise2(np.zeros((size, size)),
