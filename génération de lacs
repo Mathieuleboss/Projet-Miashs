@@ -1,0 +1,17 @@
+def generate_lake_map(height_map):
+    lake_map = np.zeros_like(height_map)
+    for x in range(1, height_map.shape[0] - 1):
+        for y in range(1, height_map.shape[1] - 1):
+            if np.random.rand() < 0.0001:  # Probabilité de source de lac
+                if height_map[x, y] < 0.3:  # Seulement dans les zones basses
+                    flood_fill(height_map, lake_map, x, y, 0.3)
+    return lake_map
+
+def flood_fill(height_map, lake_map, x, y, max_height):
+    if 0 <= x < height_map.shape[0] and 0 <= y < height_map.shape[1]:
+        if height_map[x, y] < max_height and lake_map[x, y] == 0:
+            lake_map[x, y] = 1
+            flood_fill(height_map, lake_map, x + 1, y, max_height)
+            flood_fill(height_map, lake_map, x - 1, y, max_height)
+            flood_fill(height_map, lake_map, x, y + 1, max_height)
+            flood_fill(height_map, lake_map, x, y - 1, max_height)
