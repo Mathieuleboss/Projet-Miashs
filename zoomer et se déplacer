@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+class Carte:
+    def __init__(self, taille, climat, relief, densite):
+        self.carte = generate_map(taille, climat, relief, densite)
+        self.fig, self.ax = plt.subplots()
+        self.im = self.ax.imshow(self.carte, cmap='terrain')
+        self.fig.colorbar(self.im)
+
+    def afficher(self):
+        plt.show()
+
+    def zoom(self, event):
+        x, y = event.xdata, event.ydata
+        zoom_factor = 1.2
+        if event.button == 'up':
+            new_width = int(self.im.get_width_height()[0] * zoom_factor)
+            new_height = int(self.im.get_width_height()[1] * zoom_factor)
+            self.im.set_data(self.carte[y-new_height//2:y+new_height//2, x-new_width//2:x+new_width//2])
+        elif event.button == 'down':
+            new_width = int(self.im.get_width_height()[0] / zoom_factor)
+            new_height = int(self.im.get_width_height()[1] / zoom_factor)
+            self.im.set_data(self.carte[y-new_height//2:y+new_height//2, x-new_width//2:x+new_width//2])
+        self.fig.canvas.draw()
+
+    def deplacer(self, event):
+        if event.inaxes is None:
+            return
+        x, y = event.xdata, event.ydata
+        dx, dy = event.x - x, event.y - y
+        new_x = self.ax.get_xlim()[0] + dx
+        new_y = self.ax.get_ylim()[0] + dy
+        self.ax.set_xlim(new_x, new_x + self.ax.get_xlim()[1] - self.ax.get_xlim()[0])
+        self.ax.set_ylim(new_y, new_y + self.ax.get_ylim()[1] - self.ax.get_ylim()[0])
+        self.fig.canvas.draw()
+
+# Générez une carte à l'aide de votre générateur
+carte = Carte(taille, climat, relief, densite)
+
+# Ajoutez les fonctionnalités de zoom et de déplacement
+cid = carte.fig.canvas.mpl_connect('scroll_event', carte.zoom)
+carte.fig.canvas.mpl_connect('button_press_event', carte.deplacer)
+
+# Affichez la carte
+carte.afficher()
