@@ -1,0 +1,58 @@
+Pour permettre à l'utilisateur d'exporter les cartes générées dans différents formats, nous pouvons utiliser la bibliothèque PIL (Pillow) en Python. Voici les étapes à suivre :
+
+    Importer la bibliothèque PIL :
+
+from PIL import Image
+
+    Ajouter une fonction pour exporter la carte dans le format souhaité. Dans notre cas, nous allons exporter la carte en tant qu'image PNG, JPEG et BMP. Voici un exemple de fonction pour exporter la carte en tant qu'image PNG :
+
+def export_map_png(map_data):
+    # Créer une image vide avec les dimensions de la carte
+    img = Image.new("RGB", (len(map_data[0]), len(map_data)))
+    pixels = img.load()
+
+    # Parcourir chaque cellule de la carte et définir la couleur correspondante dans l'image
+    for i in range(len(map_data)):
+        for j in range(len(map_data[i])):
+            if map_data[i][j] == 0:
+                # Couleur pour l'eau
+                pixels[j, i] = (139, 195, 247)
+            elif map_data[i][j] == 1:
+                # Couleur pour le sable
+                pixels[j, i] = (255, 223, 128)
+            elif map_data[i][j] == 2:
+                # Couleur pour les collines
+                pixels[j, i] = (154, 205, 50)
+            elif map_data[i][j] == 3:
+                # Couleur pour les montagnes
+                pixels[j, i] = (220, 220, 220)
+
+    # Enregistrer l'image au format PNG
+    img.save("map.png")
+
+    Ajouter des options dans l'interface graphique pour permettre à l'utilisateur de choisir le format d'exportation souhaité. Nous pouvons ajouter un menu déroulant avec les options PNG, JPEG et BMP. Voici un exemple de code pour ajouter ce menu déroulant :
+
+# Créer un menu déroulant pour choisir le format d'exportation
+export_format = tk.StringVar(window)
+export_format.set("PNG") # Format par défaut
+
+format_options = tk.OptionMenu(window, export_format, "PNG", "JPEG", "BMP")
+format_options.pack()
+
+    Modifier la fonction d'exportation pour prendre en compte le format choisi par l'utilisateur. Voici un exemple de code pour exporter la carte dans le format choisi :
+
+def export_map():
+    if export_format.get() == "PNG":
+        export_map_png(map_data)
+    elif export_format.get() == "JPEG":
+        export_map_jpeg(map_data)
+    elif export_format.get() == "BMP":
+        export_map_bmp(map_data)
+
+    Ajouter un bouton dans l'interface graphique pour appeler la fonction d'exportation. Voici un exemple de code pour ajouter ce bouton :
+
+# Créer un bouton pour exporter la carte
+export_button = tk.Button(window, text="Exporter la carte", command=export_map)
+export_button.pack()
+
+Avec ces modifications, l'utilisateur peut maintenant choisir le format d'exportation souhaité et exporter la carte en cliquant sur le bouton "Exporter la carte".
