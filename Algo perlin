@@ -1,0 +1,94 @@
+LA MODIFICATION DES VALEURS OCTAVE;LACUNARITY;PERSISTENCE;PERLN SCALE; ET PERLIN SIZE MODIFIE LE RENDEMENT DE LA CARTE
+
+import numpy as np
+import math
+
+PERLIN_SIZE = 1024
+PERLIN_SCALE = 32
+PERSISTENCE = 0.9
+LACUNARITY = 3.0
+NUM_OCTAVES = 10
+
+def generate_perlin_noise_table():
+    """Generate a table of Perlin noise values."""
+    perlin[:] = np.random.random((PERLIN_SIZE, PERLIN_SIZE))
+
+def perlin_noise(x, y, z, octave):
+    """Calculate the Perlin noise value for a given position."""
+    x0 = math.floor(x)
+    x1 = x0 + 1
+    y0 = math.floor(y)
+    y1 = y0 + 1
+    z0 = math.floor(z)
+    z1 = z0 + 1
+    sx = x - x0
+    sy = y - y0
+    sz = z - z0
+
+    n000 = perlin[x0 & (PERLIN_SIZE - 1)][y0 & (PERLIN_SIZE - 1)]
+    n001 = perlin[x0 & (PERLIN_SIZE - 1)][y1 & (PERLIN_SIZE - 1)]
+    n010 = perlin[x1 & (PERLIN_SIZE - 1)][y0 & (PERLIN_SIZE - 1)]
+    n011 = perlin[x1 & (PERLIN_SIZE - 1)][y1 & (PERLIN_SIZE - 1)]
+    n100 = perlin[x0 & (PERLIN_SIZE - 1)][z0 & (PERLIN_SIZE - 1)]
+    n101 = perlin[x0 & (PERLIN_SIZE - 1)][z1 & (PERLIN_SIZE - 1)]
+    n110 = perlin[x1 & (PERLIN_SIZE - 1)][z0 & (PERLIN_SIZE - 1)]
+    n111 = perlin[x1 & (PERLIN_SIZE - 1)][z1 & (PERLIN_SIZE - 1)]
+
+    u = fade(sx)
+    v = fade(sy)
+    w = fade(sz)
+    n00 = lerp(n000, n001, v)
+    n01 = lerp(n010, n011, v)
+    n10 = lerp(n100, n101, w)
+    n11 = lerp(n110, n111, w)
+    n0 = lerp(n00, n01, u)
+    n1 = lerp(n10, n11, u)
+    n = lerp(n0, n1, w)
+
+    return n if octave == 0 else n / 2 ** octave
+
+def generate_terrain():
+    """Generate a terrain using Perlin noise."""
+    terrain = np.zeros((PERLIN_SIZE, PERLIN_SIZE))
+    amplitude = 1
+    frequency = 1
+    for octave in range(NUM_OCTAVES):
+        for x in range(PERLIN_SIZE):
+            for y in range(PERLIN_SIZE):
+                noise = perlin_noise(x / PERLIN_SCALE * frequency, y / PERLIN_SCALE * frequency, 0, octave)
+                terrain[x][y] += noise * amplitude
+        amplitude *= PERSISTENCE
+        frequency *= LACUNARITY
+    return terrain
+
+def generate_biomes(terrain):
+    """Generate biomes based on the terrain height."""
+    biomes = np.zeros((PERLIN_SIZE, PERLIN_SIZE))
+    for x in range(PERLIN_SIZE):
+        for y in range(PERLIN_SIZE):
+            height = terrain[x][y]
+            if height < 0.2:
+                biomes[x][y] = 0  # Water
+            elif height < 0.4:
+                biomes[x][y] = 1  # Beach
+            elif height < 0.6:
+                biomes[x][y] = 2  # Grassland
+            elif height < 0.8:
+                biomes[x][y] = 3  # Forest
+            else:
+                biomes[x][y] = 4  # Mountain
+    return biomes
+
+import matplotlib.pyplot as plt
+
+def display_map(terrain, biomes):
+    """Display the map in 2D using Matplotlib."""
+    plt.imshow(terrain, cmap='viridis')
+    plt.colorbar()
+    plt.imshow(biomes, cmap='viridis', alpha=0.5)
+    plt.show()
+
+generate_perlin_noise_table()
+terrain = generate_terrain()
+biomes = generate_biomes(terrain)
+display_map(terrain, biomes)
