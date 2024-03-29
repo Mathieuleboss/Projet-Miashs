@@ -1,0 +1,11 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Générez une carte à l'aide de votre générateur
+# La carte doit être stockée dans un tableau NumPy de dimensions (hauteur, largeur)
+carte = generate_map(taille, climat, relief, densite)
+
+# Affichez la carte à l'aide de Matplotlib
+plt.imshow(carte, cmap='terrain')
+plt.colorbar()
+plt.show()
