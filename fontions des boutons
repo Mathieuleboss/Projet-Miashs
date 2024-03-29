@@ -1,0 +1,49 @@
+import sqlite3
+import pickle
+
+def save_map():
+    # Connect to the SQLite database
+    conn = sqlite3.connect('maps.db')
+    cursor = conn.cursor()
+
+    # Get the map data from the canvas
+    map_data = []
+    for i in range(canvas_width):
+        row = []
+        for j in range(canvas_height):
+            pixel_color = canvas.get("#%d,%d" % (i, j))
+            if pixel_color == 'green':
+                row.append(1)
+            else:
+                row.append(0)
+        map_data.append(row)
+
+    # Convert the map data to a pickle object
+    map_pickle = pickle.dumps(map_data)
+
+    # Save the map data to the SQLite database
+    cursor.execute('INSERT INTO maps (data) VALUES (?)', (sqlite3.Binary(map_pickle),))
+    conn.commit()
+    conn.close()
+
+def load_map():
+    # Connect to the SQLite database
+    conn = sqlite3.connect('maps.db')
+    cursor = conn.cursor()
+
+    # Load the map data from the SQLite database
+    cursor.execute('SELECT data FROM maps ORDER BY ROWID DESC LIMIT 1')
+    map_pickle = cursor.fetchone()[0]
+
+    # Convert the pickle object to map data
+    map_data = pickle.loads(map_pickle)
+
+    # Draw the map data on the canvas
+    for i in range(canvas_width):
+        for j in range(canvas_height):
+            if map_data[i][j] == 1:
+                canvas.create_rectangle(i, j, i+1, j+1, fill='green')
+            else:
+                canvas.create_rectangle(i, j, i+1, j+1, fill='white')
+
+    conn.close()
