@@ -1,0 +1,6 @@
+
+save_button = tk.Button(window, text="Enregistrer la carte", command=save_map)
+save_button.pack()
+
+load_button = tk.Button(window, text="Charger la carte", command=load_map)
+load_button.pack()
