@@ -1,0 +1,104 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def generate_forest_map(height_map, temperature_map):
+    forest_map = np.zeros_like(height_map)
+    for x in range(height_map.shape[0]):
+        for y in range(height_map.shape[1]):
+            if np.random.rand() < 0.1:  # Probabilité de source de forêt augmentée
+                if height_map[x, y] > 0.3 and temperature_map[x, y] > 0.2:  # Conditions climatiques favorables assouplies
+                    forest_map[x, y] = 1
+                    grow_forest(forest_map, x, y)
+    return forest_map
+
+def grow_forest(forest_map, x, y, depth=0, max_depth=4):
+    if depth >= max_depth:
+        return
+
+    if 0 <= x < forest_map.shape[0] and 0 <= y < forest_map.shape[1]:
+        if np.random.rand() < 0.5:  # Probabilité de croissance
+            forest_map[x, y] = 1
+            grow_forest(forest_map, x + 1, y, depth + 1)
+            grow_forest(forest_map, x - 1, y, depth + 1)
+            grow_forest(forest_map, x, y + 1, depth + 1)
+            grow_forest(forest_map, x, y - 1, depth + 1)
+
+def generate_height_map(size):
+    return np.random.rand(size, size)
+
+def generate_temperature_map(size):
+    return np.random.rand(size, size)
+
+def generate_desert_map(height_map, temperature_map):
+    desert_map = np.zeros_like(height_map)
+    for x in range(height_map.shape[0]):
+        for y in range(height_map.shape[1]):
+            if np.random.rand() < 0.1:  # Probabilité de source de désert augmentée
+                if height_map[x, y] < 0.4 and temperature_map[x, y] > 0.7:  # Conditions climatiques favorables assouplies
+                    desert_map[x, y] = 1
+                    grow_desert(desert_map, x, y)
+    return desert_map
+
+def grow_desert(desert_map, x, y, depth=0, max_depth=6):
+    if depth >= max_depth:
+        return
+
+    if 0 <= x < desert_map.shape[0] and 0 <= y < desert_map.shape[1]:
+        if np.random.rand() < 0.5:  # Probabilité de croissance
+            desert_map[x, y] = 1
+            if np.random.rand() < 0.2:  # Probabilité de roche
+                desert_map[x, y] = 2
+            grow_desert(desert_map, x + 1, y, depth + 1)
+            grow_desert(desert_map, x - 1, y, depth + 1)
+            grow_desert(desert_map, x, y + 1, depth + 1)
+            grow_desert(desert_map, x, y - 1, depth + 1)
+
+def generate_lake_map(height_map, temperature_map):
+    lake_map = np.zeros_like(height_map)
+    num_lakes = 3
+    for i in range(num_lakes):
+        x, y = np.random.randint(0, height_map.shape[0]), np.random.randint(0, height_map.shape[1])
+        if height_map[x, y] < 0.3 and temperature_map[x, y] < 0.5:  # Conditions climatiques favorables pour les lacs
+            lake_map[x, y] = 1
+            grow_lake(lake_map, x, y)
+    return lake_map
+
+def grow_lake(lake_map, x, y, depth=0, max_depth=8):
+    if depth >= max_depth:
+        return
+
+    if 0 <= x < lake_map.shape[0] and 0 <= y < lake_map.shape[1]:
+        if np.random.rand() < 0.5:  # Probabilité de croissance
+            lake_map[x, y] = 1
+            grow_lake(lake_map, x + 1, y, depth + 1)
+            grow_lake(lake_map, x - 1, y, depth + 1)
+            grow_lake(lake_map, x, y + 1, depth + 1)
+            grow_lake(lake_map, x, y - 1, depth + 1)
+            
+def generate_landscape(size):
+    height_map = generate_height_map(size)
+    temperature_map = generate_temperature_map(size)
+    desert_map = generate_desert_map(height_map, temperature_map)
+    forest_map = generate_forest_map(height_map, temperature_map)
+    lake_map = generate_lake_map(height_map, temperature_map)
+    return desert_map, forest_map, lake_map
+
+desert_map, forest_map, lake_map = generate_landscape(100)
+
+mask = np.zeros_like(desert_map)
+mask[(desert_map == 0) & (forest_map == 0) & (lake_map == 0)] = 1
+
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Afficher le masque en noir en premier
+# ax.imshow(mask, cmap='gray_r', vmin=0, vmax=1, alpha=1)
+# Afficher la carte du désert par-dessus avec une transparence de 0.5 et des couleurs plus vives
+ax.imshow(desert_map, cmap='inferno', vmin=0, vmax=2.2, alpha=0.6)
+# Afficher la carte de la forêt par-dessus avec une transparence de 0.5 et des couleurs plus vives
+ax.imshow(forest_map, cmap='Greens', vmin=0, vmax=1.2, alpha=0.3)
+# Afficher la carte des lacs par-dessus avec une transparence de 0.5, des couleurs plus vives et une probabilité de croissance augmentée
+ax.imshow(lake_map, cmap='Blues_r', vmin=0, vmax=1.2, alpha=0.3)
+
+ax.set_title('Combined Landscape, Forest and Lakes')
+
+plt.show()
