@@ -1,5 +1,31 @@
 LA MODIFICATION DES VALEURS OCTAVE;LACUNARITY;PERSISTENCE;PERLN SCALE; ET PERLIN SIZE MODIFIE LE RENDEMENT DE LA CARTE
 
+Pour une carte plus détaillée et réaliste, essayez d'augmenter PERLIN_SIZE, PERLIN_SCALE et NUM_OCTAVES, et de réduire légèrement PERSISTENCE et LACUNARITY. Par exemple :
+
+PERLIN_SIZE = 2048
+PERLIN_SCALE = 64
+PERSISTENCE = 0.7
+LACUNARITY = 2.5
+NUM_OCTAVES = 12
+
+Pour une carte plus stylisée et abstraite, essayez de réduire PERLIN_SIZE et PERLIN_SCALE, et d'augmenter PERSISTENCE et LACUNARITY. Par exemple :
+
+PERLIN_SIZE = 512
+PERLIN_SCALE = 16
+PERSISTENCE = 0.95
+LACUNARITY = 4.0
+NUM_OCTAVES = 8
+
+Pour une carte plus équilibrée, essayez de trouver un compromis entre détail et performance. Par exemple :
+
+PERLIN_SIZE = 1024
+PERLIN_SCALE = 32
+PERSISTENCE = 0.85
+LACUNARITY = 3.0
+NUM_OCTAVES = 10
+
+DEBUT DU PROGRAMME
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 import numpy as np
 import math
 
