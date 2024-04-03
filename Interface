@@ -1,94 +1,92 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog
-import generator
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-class MapGeneratorGUI:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Générateur de carte")
+def generate_terrain_map(width, height, mountain_density, forest_density, lake_density):
+    terrain_map = np.zeros((height, width), dtype=int)
 
-        # Création du menu
-        menubar = tk.Menu(self.master)
-        self.master.config(menu=menubar)
+    # Générer les montagnes
+    mountain_map = np.random.rand(height, width) < mountain_density
+    terrain_map[mountain_map] = 1
 
-        # Sous-menu "Fichier"
-        filemenu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Fichier", menu=filemenu)
-        filemenu.add_command(label="Enregistrer la carte", command=self.save_map)
-        filemenu.add_command(label="Exporter la carte", command=self.export_map)
-        filemenu.add_command(label="Quitter", command=self.master.quit)
+    # Générer les forêts
+    forest_map = np.random.rand(height, width) < forest_density
+    terrain_map[(forest_map & ~mountain_map)] = 2
 
-        # Création du canvas pour afficher la carte
-        self.canvas = tk.Canvas(self.master, width=800, height=600)
-        self.canvas.pack()
+    # Générer les lacs
+    lake_map = np.random.rand(height, width) < lake_density
+    terrain_map[(lake_map & ~mountain_map & ~forest_map)] = 3
 
-        # Création des widgets pour les paramètres de génération de carte
-        self.size_label = tk.Label(self.master, text="Taille de la carte :")
-        self.size_entry = tk.Entry(self.master, width=10)
-        self.size_entry.insert(0, "50")
-        self.climate_label = tk.Label(self.master, text="Climat :")
-        self.climate_entry = tk.Entry(self.master, width=10)
-        self.climate_entry.insert(0, "0.5")
-        self.relief_label = tk.Label(self.master, text="Relief :")
-        self.relief_entry = tk.Entry(self.master, width=10)
-        self.relief_entry.insert(0, "0.5")
-        self.density_label = tk.Label(self.master, text="Densité de population :")
-        self.density_entry = tk.Entry(self.master, width=10)
-        self.density_entry.insert(0, "0.5")
-        self.generate_button = tk.Button(self.master, text="Générer la carte", command=self.generate_map)
+    return terrain_map
 
-        # Positionnement des widgets
-        self.size_label.place(x=10, y=10)
-        self.size_entry.place(x=120, y=10)
-        self.climate_label.place(x=10, y=40)
-        self.climate_entry.place(x=120, y=40)
-        self.relief_label.place(x=10, y=70)
-        self.relief_entry.place(x=120, y=70)
-        self.density_label.place(x=10, y=100)
-        self.density_entry.place(x=120, y=100)
-        self.generate_button.place(x=10, y=130)
+def display_terrain_map(terrain_map):
+    colors = ['white', 'brown', 'green', 'blue']
+    fig, ax = plt.subplots()
+    ax.imshow(terrain_map, cmap=colors)
+    return fig
 
-    def generate_map(self):
-        size = int(self.size_entry.get())
-        climate = float(self.climate_entry.get())
-        relief = float(self.relief_entry.get())
-        density = float(self.density_entry.get())
-        map_data = generator.generate_map(size, climate, relief, density)
-        self.display_map(map_data)
+def save_terrain_map(terrain_map):
+    colors = ['white', 'brown', 'green', 'blue']
+    fig = plt.figure()
+    plt.imshow(terrain_map, cmap=colors)
+    file_path = filedialog.asksaveasfilename(defaultextension=".png")
+    fig.savefig(file_path)
+    plt.close(fig)
 
-    def display_map(self, map_data):
-        self.canvas.delete("all")
-        for i in range(len(map_data)):
-            for j in range(len(map_data[i])):
-                color = generator.get_color(map_data[i][j])
-                x1, y1 = j, i
-                x2, y2 = j + 1, i + 1
-                self.canvas.create_rectangle(x1, y1, x2, y2, fill=color)
+def generate_map():
+    width = int(width_entry.get())
+    height = int(height_entry.get())
+    mountain_density = float(mountain_density_entry.get())
+    forest_density = float(forest_density_entry.get())
+    lake_density = float(lake_density_entry.get())
 
-    def save_map(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".csv")
-        map_data = self.get_map_data()
-        generator.save_map(map_data, file_path)
-
-    def export_map(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".png")
-        map_data = self.get_map_data()
-        generator.export_map(map_data, file_path)
-
-    def get_map_data(self):
-        size = int(self.size_entry.get())
-        map_data = []
-        for i in range(size):
-            row = []
-            for j in range(size):
-                x1, y1 = j, i
-                x2, y2 = j + 1, i + 1
-                color = self.canvas.find_closest(x1, y1, x2, y2)[2]
-                biome = generator.get_biome_from_color(color)
-                row.append(biome)
-            map_data.append(row)
-        return map_data
+    terrain_map = generate_terrain_map(width, height, mountain_density, forest_density, lake_density)
+    fig = display_terrain_map(terrain_map)
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+    save_terrain_map(terrain_map)
 
 root = tk.Tk()
-app = MapGeneratorGUI(root)
+root.title("Générateur de Terrain")
+
+frame = ttk.Frame(root, padding="10")
+frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+width_label = ttk.Label(frame, text="Largeur:")
+width_label.grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+width_entry = ttk.Entry(frame, width=10)
+width_entry.insert(0, "100")
+width_entry.grid(row=0, column=1)
+
+height_label = ttk.Label(frame, text="Hauteur:")
+height_label.grid(row=1, column=0, sticky=tk.W, padx=(0, 10))
+height_entry = ttk.Entry(frame, width=10)
+height_entry.insert(0, "100")
+height_entry.grid(row=1, column=1)
+
+mountain_density_label = ttk.Label(frame, text="Densité des Montagnes:")
+mountain_density_label.grid(row=2, column=0, sticky=tk.W, padx=(0, 10))
+mountain_density_entry = ttk.Entry(frame, width=10)
+mountain_density_entry.insert(0, "0.2")
+mountain_density_entry.grid(row=2, column=1)
+
+forest_density_label = ttk.Label(frame, text="Densité des Forêts:")
+forest_density_label.grid(row=3, column=0, sticky=tk.W, padx=(0, 10))
+forest_density_entry = ttk.Entry(frame, width=10)
+forest_density_entry.insert(0, "0.3")
+forest_density_entry.grid(row=3, column=1)
+
+lake_density_label = ttk.Label(frame, text="Densité des Lacs:")
+lake_density_label.grid(row=4, column=0, sticky=tk.W, padx=(0, 10))
+lake_density_entry = ttk.Entry(frame, width=10)
+lake_density_entry.insert(0, "0.1")
+lake_density_entry.grid(row=4, column=1)
+
+generate_button = ttk.Button(frame, text="Générer", command=generate_map)
+generate_button.grid(row=5, column=0, columnspan=2, pady=(10, 0))
+
 root.mainloop()
