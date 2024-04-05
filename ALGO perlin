@@ -14,7 +14,7 @@ colors = [
 reduced_cmap = LinearSegmentedColormap.from_list('reduced', colors)
 
 # Constants for Perlin noise
-PERLIN_SIZE = 1024
+PERLIN_SIZE = 512
 PERLIN_SCALE = 16
 PERSISTENCE = 0.5
 LACUNARITY = 2.0
@@ -47,27 +47,53 @@ def generate_perlin_noise():
             perlin[i][j] = random.random()
 
 # Function to generate a single octave of Perlin noise
-def generate_noise(width, height, scale, octave):
-    seed = int(time.time())
+seed = int(time.time())
+
+def generate_noise(width, height, scale):
     values = [[0 for _ in range(width)] for _ in range(height)]
+
     for x in range(width):
         for y in range(height):
-            value = perlin_noise((x + seed) / scale, (y + seed) / scale, octave)
+            value = perlin_noise((x + seed) / scale, (y + seed) / scale, 0)
             values[x][y] = value
-    return values
 
+    return values
 # Function to generate a height map using multiple octaves of Perlin noise
 def generate_height_map(width, height, scale):
     values = [[0 for _ in range(width)] for _ in range(height)]
-    amplitude = 1
-    frequency = 1
-    for i in range(NUM_OCTAVES):
-        noise = generate_noise(width, height, scale * frequency, i)
-        for x in range(width):
-            for y in range(height):
-                values[x][y] += noise[x][y] * amplitude
-        amplitude *= PERSISTENCE
-        frequency *= LACUNARITY
+
+    # Generate height maps for each biome
+    ocean_map = generate_noise(width, height, scale * 2)
+    forest_map = generate_noise(width, height, scale)
+    desert_map = generate_noise(width, height, scale * 0.5)
+    mountain_map = generate_noise(width, height, scale * 0.25)
+
+    # Combine height maps
+    for x in range(width):
+        for y in range(height):
+            ocean_value = ocean_map[x][y]
+            forest_value = forest_map[x][y]
+            desert_value = desert_map[x][y]
+            mountain_value = mountain_map[x][y]
+            values[x][y] = max(ocean_value, forest_value, desert_value, mountain_value)
+
+    # Apply color map
+    for x in range(width):
+        for y in range(height):
+            value = values[x][y]
+            if value < 0.7:
+                # Ocean
+                values[x][y] = 0
+            elif value < 0.4:
+                # Forest
+                values[x][y] = 1
+            elif value < 0.5:
+                # Desert
+                values[x][y] = 2
+            else:
+                # Mountains
+                values[x][y] = 3
+
     return values
 
 # Function to calculate Perlin noise
@@ -108,7 +134,7 @@ def plot_color_gradients(title, colormaps):
 def display_height_map(map):
     """Display the height map using Matplotlib."""
     fig, ax = plt.subplots()
-    im = ax.imshow(map, cmap=reduced_cmap)  # Use the reduced colormap
+    im = ax.imshow(map, cmap=reduced_cmap, vmin=0, vmax=3)  # Use the reduced colormap and set the value range
     fig.colorbar(im, ax=ax)
 
     # Apply contrast to the height map
@@ -116,7 +142,7 @@ def display_height_map(map):
     contrast_map = apply_contrast(map, contrast_factor)
 
     # Plot color gradients
-    plt.imshow(map, cmap=reduced_cmap)  # Use the reduced colormap
+    plt.imshow(contrast_map, cmap=reduced_cmap, vmin=0, vmax=3)  # Use the reduced colormap and set the value range
     plt.colorbar()
     plt.show()
 # Main function
