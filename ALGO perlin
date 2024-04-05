@@ -3,12 +3,22 @@ import random
 import time
 import matplotlib.pyplot as plt
 
+from matplotlib.colors import LinearSegmentedColormap
+
+colors = [
+    (0.0, 'deepskyblue'),  # bleu
+    (0.33, 'forestgreen'),  # vert
+    (0.66, 'goldenrod'),  # jaune
+    (1.0, 'lightgray')  # gris
+]
+reduced_cmap = LinearSegmentedColormap.from_list('reduced', colors)
+
 # Constants for Perlin noise
-PERLIN_SIZE = 256
-PERLIN_SCALE = 4
+PERLIN_SIZE = 1024
+PERLIN_SCALE = 16
 PERSISTENCE = 0.5
 LACUNARITY = 2.0
-NUM_OCTAVES = 6
+NUM_OCTAVES = 16
 
 # Perlin noise table
 perlin = [[0 for _ in range(PERLIN_SIZE)] for _ in range(PERLIN_SIZE)]
@@ -80,17 +90,35 @@ def perlin_noise(x, y, octave):
     n1 = lerp(n10, n11, v)
     n = lerp(n0, n1, u)
 
-    return n if octave == 0 else n / 2 ** octave
+    # Modification : donner plus de poids aux valeurs basses
+    n = n ** 2
 
+    return n if octave == 0 else n / 2 ** octave
+def plot_color_gradients(title, colormaps):
+    """Plot color gradients for a given list of colormaps."""
+    num_colormaps = len(colormaps)
+    fig, axs = plt.subplots(nrows=1, ncols=num_colormaps, figsize=(15, 0.5))
+    fig.suptitle(title, fontsize=14, fontweight='bold')
+    for i, cmap in enumerate(colormaps):
+        ax = axs[i]
+        ax.imshow([[0, 10]], aspect='auto', cmap=plt.get_cmap(cmap))
+        ax.axis('off')
+    plt.show()
 # Function to display the height map
 def display_height_map(map):
+    """Display the height map using Matplotlib."""
+    fig, ax = plt.subplots()
+    im = ax.imshow(map, cmap=reduced_cmap)  # Use the reduced colormap
+    fig.colorbar(im, ax=ax)
+
+    # Apply contrast to the height map
     contrast_factor = 20
     contrast_map = apply_contrast(map, contrast_factor)
-    
-    plt.imshow(map, cmap='viridis')
+
+    # Plot color gradients
+    plt.imshow(map, cmap=reduced_cmap)  # Use the reduced colormap
     plt.colorbar()
     plt.show()
-
 # Main function
 def main():
     # Seed the random number generator
@@ -101,8 +129,8 @@ def main():
     generate_perlin_noise()
 
     # Generate a height map with multiple octaves of Perlin noise
-    width = 745
-    height = 745
+    width = 1450
+    height = 1450
     scale = 25
     map = generate_height_map(width, height, scale)
 
