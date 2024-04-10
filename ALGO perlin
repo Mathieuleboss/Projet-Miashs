@@ -7,8 +7,8 @@ from matplotlib.colors import LinearSegmentedColormap
 
 colors = [
     (0.0, 'deepskyblue'),  # bleu
-    (0.33, 'forestgreen'),  # vert
-    (0.66, 'goldenrod'),  # jaune
+    (0.25, 'forestgreen'),  # vert
+    (0.5, 'orange'),  # orange (au lieu de 'goldenrod' pour le jaune)
     (1.0, 'lightgray')  # gris
 ]
 reduced_cmap = LinearSegmentedColormap.from_list('reduced', colors)
@@ -63,10 +63,10 @@ def generate_height_map(width, height, scale):
     values = [[0 for _ in range(width)] for _ in range(height)]
 
     # Generate height maps for each biome
-    ocean_map = generate_noise(width, height, scale * 2)
-    forest_map = generate_noise(width, height, scale)
-    desert_map = generate_noise(width, height, scale * 0.5)
-    mountain_map = generate_noise(width, height, scale * 0.25)
+    ocean_map = generate_noise(width, height, scale * 4)
+    forest_map = generate_noise(width, height, scale * 2)
+    desert_map = generate_noise(width, height, scale)
+    mountain_map = generate_noise(width, height, scale * 0.5)
 
     # Combine height maps
     for x in range(width):
@@ -81,15 +81,15 @@ def generate_height_map(width, height, scale):
     for x in range(width):
         for y in range(height):
             value = values[x][y]
-            if value < 0.7:
+            if value < 0.25:
                 # Ocean
                 values[x][y] = 0
-            elif value < 0.4:
-                # Forest
-                values[x][y] = 1
             elif value < 0.5:
                 # Desert
-                values[x][y] = 2
+                values[x][y] = 1.8
+            elif value < 0.75:
+                # Forest
+                values[x][y] = 1
             else:
                 # Mountains
                 values[x][y] = 3
@@ -117,7 +117,6 @@ def perlin_noise(x, y, octave):
     n = lerp(n0, n1, u)
 
     # Modification : donner plus de poids aux valeurs basses
-    n = n ** 2
 
     return n if octave == 0 else n / 2 ** octave
 def plot_color_gradients(title, colormaps):
@@ -155,8 +154,8 @@ def main():
     generate_perlin_noise()
 
     # Generate a height map with multiple octaves of Perlin noise
-    width = 1450
-    height = 1450
+    width = 1050
+    height = 1050
     scale = 25
     map = generate_height_map(width, height, scale)
 
