@@ -16,5 +16,7 @@ C'est pourquoi, parallèlement à notre programme incluant les algorithmes du br
 A première vu ce nouveau programme nous semblait optimal car il affichait des couleurs bien plus vives et clairement séparées les unes des autres sur les carte obtenues après exécution, chaque carte représentant un type de terrain différent.
 Cependant nous avons vite mis de côté cette option car la superposition des différents types de terrain s'est avérée être bien plus complexe qu'avec l'utilisation des algorithmes de Perlin.
 
-avec l'aide de l'I.A., dans la limite de nos capacités en informatique, rendu le résultat plus conforme par rapport au projet.
+Une fois persuadés de l'utilisation d'un programme incluant donc l'algorithme du bruit de Perlin, nous avons, à l'aide de l'I.A, expémirenté de plus en plus le maniement des couleurs dans ce type d'algorithme.
+Grâce à ces recherches, nous avons réussi à commencé à toucher aux couleurs de notre carte en rectifiant notamment le contraste et les valeurs minimums et maximums de notre échelle de couleur. 
+De plus nous avons exploré les différentes couleurs existantes en Python afin de voir lesquelles auraient le meilleur rendu sur notre carte finale.
 
