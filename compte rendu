@@ -1,5 +1,5 @@
-    Le projet de génération de carte consiste à créer une carte en deux dimensions avec différents types de terrain, tels que des lacs, des montagnes et des fôrets.
-Pour se faire, nous avons utilisé une intelligence artifielle (principalement Mistral AI).
+    Le projet de génération de carte consiste à créer une carte en deux dimensions avec différents types de terrain, tels que des océans, des montagnes, des déserts et des fôrets.
+Pour se faire, nous avons demandé conseil à une intelligence artifielle (principalement Mistral AI).
 En effet, nous lui avons demandé en premier lieu d'élaborer un plan afin de mener à bien le projet, plan que nous avons suivis tout le long de la réalisation de ce projet.
 
     L'I.A. nous a suggéré d'utiliser des algorithmes du bruit de Perlin, qui sont algorithmes fréquemments utilisés pour créer des environnements réalistes.
