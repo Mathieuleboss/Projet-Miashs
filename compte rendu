@@ -12,6 +12,9 @@ Suite à cette adaptation, nous avons alors suggérer à l'I.A. de nous élabore
 Après cela, nous pensions être complètement au point sur la forme que nous pourrions donner à notre programme. Cependant, après les premières tentatives d'utilisation du bruit de Perlin, le rendu n'était pas à la hauteur de nos attentes.
 Un des problèmes auxquels nous étions confrontés était notamment la non-apparition des lacs sur notre carte après exécution du programme, malgré la présence d'une fonction générative de lac dans notre programme.
 De plus, nous n'étions pas au point avec la maniement des couleurs affichées après exécution. Ces couleurs étant la façon de distinguer les différents types de terrains sensés être présents sur notre carte, le problème était donc de taille.
-C'est pourquoi, parallèlement à notre programme incluant les algorithmes du bruit de Perlin, nous nous sommes essayé à une autre façon de procéder  
+C'est pourquoi, parallèlement à notre programme incluant les algorithmes du bruit de Perlin, nous nous sommes essayé à un autre type de programme incluant les bibliothèques Matplotlib et Numpy et excluant l'algorithme de Perlin.
+A première vu ce nouveau programme nous semblait optimal car il affichait des couleurs bien plus vives et clairement séparées les unes des autres sur les carte obtenues après exécution, chaque carte représentant un type de terrain différent.
+Cependant nous avons vite mis de côté cette option car la superposition des différents types de terrain s'est avérée être bien plus complexe qu'avec l'utilisation des algorithmes de Perlin.
+
 avec l'aide de l'I.A., dans la limite de nos capacités en informatique, rendu le résultat plus conforme par rapport au projet.
 
