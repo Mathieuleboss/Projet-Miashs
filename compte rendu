@@ -1,5 +1,5 @@
     Le projet de génération de carte consiste à créer une carte en deux dimensions avec différents types de terrain, tels que des océans, des montagnes, des déserts et des fôrets.
-Pour se faire, nous avons exclusivement travaillé en langage Python avec la grande aide de L'I.A mistral sans laquelle nous serions passé à côté de précieux conseils autant pratiques que théoriques.
+Pour se faire, nous avons exclusivement travaillé en langage Python pour sa simplicité dans l'affichage de graphiques. Mais également avec l'aide de L'I.A mistral sans laquelle nous serions passé à côté de précieux conseils autant pratiques que théoriques.
 
 Une fois notre sujet connu, nous lui avons demandé en premier lieu d'élaborer un plan afin de mener à bien le projet. Plan que nous avons suivis pour mener à bien la réalisation de ce projet.
 Suite à cela l'I.A nous a suggéré certaines pratiques, telle que l'utilisation des bibliothèques suivantes : Numpy, Perlin Noise, Matplotlib.
