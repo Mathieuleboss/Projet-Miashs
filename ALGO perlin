@@ -2,35 +2,24 @@ import math
 import random
 import time
 import matplotlib.pyplot as plt
-
 from matplotlib.colors import LinearSegmentedColormap
 
 colors = [
-    (0.0, 'deepskyblue'),  # bleu
-    (0.25, 'forestgreen'),  # vert
-    (0.5, 'orange'),  # orange (au lieu de 'goldenrod' pour le jaune)
-    (1.0, 'lightgray')  # gris
+    (0.0, 'deepskyblue'),
+    (0.333, 'forestgreen'),
+    (0.667, 'orange'),
+    (1.0, 'lightgray')
 ]
 reduced_cmap = LinearSegmentedColormap.from_list('reduced', colors)
 
-# Constants for Perlin noise
-PERLIN_SIZE = 512
+PERLIN_SIZE = 1024
 PERLIN_SCALE = 16
 PERSISTENCE = 0.5
 LACUNARITY = 2.0
 NUM_OCTAVES = 16
 
-# Perlin noise table
 perlin = [[0 for _ in range(PERLIN_SIZE)] for _ in range(PERLIN_SIZE)]
 
-def apply_contrast(values, factor=20):
-    min_value = min(min(row) for row in values)
-    max_value = max(max(row) for row in values)
-    new_values = [[0 for _ in range(len(values[0]))] for _ in range(len(values))]
-    for x in range(len(values)):
-        for y in range(len(values[x])):
-            new_values[x][y] = ((values[x][y] - min_value) / (max_value - min_value)) ** factor
-    return new_values
 
 # Function to linearly interpolate between a0 and a1
 def lerp(a0, a1, w):
@@ -64,18 +53,18 @@ def generate_height_map(width, height, scale):
 
     # Generate height maps for each biome
     ocean_map = generate_noise(width, height, scale * 4)
-    forest_map = generate_noise(width, height, scale * 2)
-    desert_map = generate_noise(width, height, scale)
-    mountain_map = generate_noise(width, height, scale * 0.5)
+    forest_map = generate_noise(width, height, scale * 1.5)
+    desert_map = generate_noise(width, height, scale*1.2)
+    mountain_map = generate_noise(width, height, scale )
 
-    # Combine height maps
+    # Combine height maps using weighted average
     for x in range(width):
         for y in range(height):
-            ocean_value = ocean_map[x][y]
-            forest_value = forest_map[x][y]
-            desert_value = desert_map[x][y]
-            mountain_value = mountain_map[x][y]
-            values[x][y] = max(ocean_value, forest_value, desert_value, mountain_value)
+            ocean_value = ocean_map[x][y] * 8
+            forest_value = forest_map[x][y] * 0.2
+            desert_value = desert_map[x][y] * 0.2
+            mountain_value = mountain_map[x][y] * 0.4
+            values[x][y] = (ocean_value + forest_value + desert_value + mountain_value) / (8 + 0.2+ 0.2 + 0.4)
 
     # Apply color map
     for x in range(width):
@@ -86,15 +75,16 @@ def generate_height_map(width, height, scale):
                 values[x][y] = 0
             elif value < 0.5:
                 # Desert
-                values[x][y] = 1.8
+                values[x][y] = 0.33
             elif value < 0.75:
                 # Forest
-                values[x][y] = 1
+                values[x][y] = 0.66
             else:
                 # Mountains
-                values[x][y] = 3
+                values[x][y] = 1
 
     return values
+
 
 # Function to calculate Perlin noise
 def perlin_noise(x, y, octave):
@@ -131,18 +121,9 @@ def plot_color_gradients(title, colormaps):
     plt.show()
 # Function to display the height map
 def display_height_map(map):
-    """Display the height map using Matplotlib."""
     fig, ax = plt.subplots()
-    im = ax.imshow(map, cmap=reduced_cmap, vmin=0, vmax=3)  # Use the reduced colormap and set the value range
+    im = ax.imshow(map, cmap=reduced_cmap, vmin=0, vmax=1)  # Utiliser vmin=0 et vmax=1
     fig.colorbar(im, ax=ax)
-
-    # Apply contrast to the height map
-    contrast_factor = 20
-    contrast_map = apply_contrast(map, contrast_factor)
-
-    # Plot color gradients
-    plt.imshow(contrast_map, cmap=reduced_cmap, vmin=0, vmax=3)  # Use the reduced colormap and set the value range
-    plt.colorbar()
     plt.show()
 # Main function
 def main():
@@ -154,8 +135,8 @@ def main():
     generate_perlin_noise()
 
     # Generate a height map with multiple octaves of Perlin noise
-    width = 1050
-    height = 1050
+    width = 1250
+    height = 1250
     scale = 25
     map = generate_height_map(width, height, scale)
 
