@@ -1,8 +1,11 @@
     Le projet de génération de carte consiste à créer une carte en deux dimensions avec différents types de terrain, tels que des océans, des montagnes, des déserts et des fôrets.
-Pour se faire, nous avons demandé conseil à une intelligence artifielle (principalement Mistral AI).
-En effet, nous lui avons demandé en premier lieu d'élaborer un plan afin de mener à bien le projet, plan que nous avons suivis tout le long de la réalisation de ce projet.
-Suite à cela l'I.A nous a suggéré certaines pratiques, tel que l'utilisation des bibliothèques suivantes : Numpy, Perlin Noise, Matplotlib.
-Après avoir intégré ces conseils, nous nous sommes dirigé, suite aux suggestions de Monsieur Delbot et de l'I.A, vers l'utilisation des algorithmes du bruit de Perlin. Qui sont des algorithmes fréquemments utilisés pour créer des environnements réalistes.
+Pour se faire, nous avons exclusivement travaillé en langage Python avec la grande aide de L'I.A mistral sans laquelle nous serions passé à côté de précieux conseils autant pratiques que théoriques.
+
+Une fois notre sujet connu, nous lui avons demandé en premier lieu d'élaborer un plan afin de mener à bien le projet. Plan que nous avons suivis pour mener à bien la réalisation de ce projet.
+Suite à cela l'I.A nous a suggéré certaines pratiques, telle que l'utilisation des bibliothèques suivantes : Numpy, Perlin Noise, Matplotlib.
+Après avoir intégré ces conseils, nous nous sommes dirigé, suite aux suggestions de Monsieur Delbot et de l'I.A, vers l'utilisation des algorithmes du bruit de Perlin.
+En effet ces algorithmes sont fréquemment utilisés en langage Python pour créer des environnements réalistes.
+
 Nous avons alors suggérer à l'I.A. de nous éléborer un des ces algorithmes en utlisant la bibliothèque numpy du language informatique Python comme il nous l'a été indiqué dans la consigne.
 
     Une fois l'algorithme du bruit de Perlin généré, nous nous sommes rendu compte que le rendu n'était pas optimisé comme l'ont voulait ( Les lacs n'apparaissaient pas sur la carte).Nous avons alors, 
