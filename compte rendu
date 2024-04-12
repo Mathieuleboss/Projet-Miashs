@@ -5,12 +5,13 @@ Une fois notre sujet connu, nous lui avons demandé en premier lieu d'élaborer 
 Suite à cela l'I.A nous a suggéré certaines pratiques, telle que l'utilisation des bibliothèques suivantes : Numpy, Perlin Noise, Matplotlib.
 Après avoir intégré ces conseils, nous nous sommes dirigé, suite aux suggestions de Monsieur Delbot et de l'I.A, vers l'utilisation des algorithmes du bruit de Perlin.
 En effet ces algorithmes sont fréquemment utilisés en langage Python pour créer des environnements réalistes.
+Bien que l'utilisation de la bibliothèque "noise" soit la plus optimale en langage Python pour implémenter le bruit de Perlin, nous avons rapidement mis de côté l'intégration de cette bibliothèque dans notre programme.
+Cela faisait suite à des problèmes de disponibilité de cette bibliothèque sur les logiciels que nous avons utilisé pour programmer sur Python (Jupyter et Spyder). 
+Suite à cette adaptation, nous avons alors suggérer à l'I.A. de nous élaborer un des ces algorithmes de Perlin en utlisant la bibliothèque numpy du language Python, comme il nous l'a été indiqué dans la consigne.
 
-Nous avons alors suggérer à l'I.A. de nous éléborer un des ces algorithmes en utlisant la bibliothèque numpy du language informatique Python comme il nous l'a été indiqué dans la consigne.
+Après cela, nous pensions être complètement au point sur la forme que nous pourrions donner à notre programme. Cependant, après les premières tentatives d'utilisation du bruit de Perlin, le rendu n'était pas à la hauteur de nos attentes.
+Un des problèmes auxquels nous étions confrontés était notamment la non-apparition des lacs sur notre carte après exécution du programme, malgré la présence d'une fonction générative de lac dans notre programme.
+De plus, nous n'étions pas au point avec la maniement des couleurs affichées après exécution. Ces couleurs étant la distinction des différents types de terrains présents sur notre programme, le problème était de taille.
 
-    Une fois l'algorithme du bruit de Perlin généré, nous nous sommes rendu compte que le rendu n'était pas optimisé comme l'ont voulait ( Les lacs n'apparaissaient pas sur la carte).Nous avons alors, 
 avec l'aide de l'I.A., dans la limite de nos capacités en informatique, rendu le résultat plus conforme par rapport au projet.
 
-
-    
-    
