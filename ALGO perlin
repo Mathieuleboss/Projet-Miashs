@@ -1,9 +1,21 @@
 import math
 import random
-import time
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
+# Définir les constantes
+PERLIN_SIZE = 1024
+PERLIN_SCALE = 16
+PERSISTENCE = 0.5
+LACUNARITY = 2.0
+NUM_OCTAVES = 16
+
+OCEAN_WEIGHT = 8
+FOREST_WEIGHT = 0.2
+DESERT_WEIGHT = 0.2
+MOUNTAIN_WEIGHT = 0.4
+
+# Définir la colormap
 colors = [
     (0.0, 'deepskyblue'),
     (0.333, 'forestgreen'),
@@ -12,82 +24,73 @@ colors = [
 ]
 reduced_cmap = LinearSegmentedColormap.from_list('reduced', colors)
 
-PERLIN_SIZE = 1024
-PERLIN_SCALE = 16
-PERSISTENCE = 0.5
-LACUNARITY = 2.0
-NUM_OCTAVES = 16
-
+# Initialiser la table de bruit Perlin
 perlin = [[0 for _ in range(PERLIN_SIZE)] for _ in range(PERLIN_SIZE)]
 
-
-# Function to linearly interpolate between a0 and a1
+# Fonction pour interpoler linéairement entre deux valeurs
 def lerp(a0, a1, w):
     return a0 + w * (a1 - a0)
 
-# Fade function for Perlin noise
+# Fonction de fade pour le bruit Perlin
 def fade(t):
     return t ** 3 * (t * (t * 6 - 15) + 10)
 
-# Function to generate Perlin noise
+# Fonction pour générer le bruit Perlin
 def generate_perlin_noise():
     for i in range(PERLIN_SIZE):
         for j in range(PERLIN_SIZE):
             perlin[i][j] = random.random()
 
-# Function to generate a single octave of Perlin noise
-seed = int(time.time())
-
+# Fonction pour générer une octave de bruit Perlin
 def generate_noise(width, height, scale):
     values = [[0 for _ in range(width)] for _ in range(height)]
 
     for x in range(width):
         for y in range(height):
-            value = perlin_noise((x + seed) / scale, (y + seed) / scale, 0)
+            value = perlin_noise((x + seed) / scale, (y + seed) / scale)
             values[x][y] = value
 
     return values
-# Function to generate a height map using multiple octaves of Perlin noise
+
+# Fonction pour générer une carte de hauteur en utilisant plusieurs octaves de bruit Perlin
 def generate_height_map(width, height, scale):
     values = [[0 for _ in range(width)] for _ in range(height)]
 
-    # Generate height maps for each biome
+    # Générer les cartes de bruit pour chaque biome
     ocean_map = generate_noise(width, height, scale * 4)
     forest_map = generate_noise(width, height, scale * 1.5)
-    desert_map = generate_noise(width, height, scale*1.2)
-    mountain_map = generate_noise(width, height, scale )
+    desert_map = generate_noise(width, height, scale * 1.2)
+    mountain_map = generate_noise(width, height, scale)
 
-    # Combine height maps using weighted average
+    # Combiner les cartes de bruit en utilisant une moyenne pondérée
     for x in range(width):
         for y in range(height):
-            ocean_value = ocean_map[x][y] * 8
-            forest_value = forest_map[x][y] * 0.2
-            desert_value = desert_map[x][y] * 0.2
-            mountain_value = mountain_map[x][y] * 0.4
-            values[x][y] = (ocean_value + forest_value + desert_value + mountain_value) / (8 + 0.2+ 0.2 + 0.4)
+            ocean_value = ocean_map[x][y] * OCEAN_WEIGHT
+            forest_value = forest_map[x][y] * FOREST_WEIGHT
+            desert_value = desert_map[x][y] * DESERT_WEIGHT
+            mountain_value = mountain_map[x][y] * MOUNTAIN_WEIGHT
+            values[x][y] = (ocean_value + forest_value + desert_value + mountain_value) / (OCEAN_WEIGHT + FOREST_WEIGHT + DESERT_WEIGHT + MOUNTAIN_WEIGHT)
 
-    # Apply color map
+    # Appliquer la colormap
     for x in range(width):
         for y in range(height):
             value = values[x][y]
             if value < 0.25:
-                # Ocean
+                # Océan
                 values[x][y] = 0
             elif value < 0.5:
-                # Desert
+                # Désert
                 values[x][y] = 0.33
             elif value < 0.75:
-                # Forest
+                # Forêt
                 values[x][y] = 0.66
             else:
-                # Mountains
+                # Montagne
                 values[x][y] = 1
 
     return values
-
-
-# Function to calculate Perlin noise
-def perlin_noise(x, y, octave):
+# Fonction pour calculer le bruit Perlin
+def perlin_noise(x, y, octave=0):
     x0 = math.floor(x)
     x1 = x0 + 1
     y0 = math.floor(y)
@@ -106,19 +109,11 @@ def perlin_noise(x, y, octave):
     n1 = lerp(n10, n11, v)
     n = lerp(n0, n1, u)
 
-    # Modification : donner plus de poids aux valeurs basses
+    # Récursion pour les octaves supérieures
+    if octave > 0:
+        n += perlin_noise(x * LACUNARITY, y * LACUNARITY, octave - 1) * PERSISTENCE
 
-    return n if octave == 0 else n / 2 ** octave
-def plot_color_gradients(title, colormaps):
-    """Plot color gradients for a given list of colormaps."""
-    num_colormaps = len(colormaps)
-    fig, axs = plt.subplots(nrows=1, ncols=num_colormaps, figsize=(15, 0.5))
-    fig.suptitle(title, fontsize=14, fontweight='bold')
-    for i, cmap in enumerate(colormaps):
-        ax = axs[i]
-        ax.imshow([[0, 10]], aspect='auto', cmap=plt.get_cmap(cmap))
-        ax.axis('off')
-    plt.show()
+    return n
 # Function to display the height map
 def display_height_map(map):
     fig, ax = plt.subplots()
