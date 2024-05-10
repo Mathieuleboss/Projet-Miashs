@@ -114,28 +114,28 @@ def perlin_noise(x, y, octave=0):
         n += perlin_noise(x * LACUNARITY, y * LACUNARITY, octave - 1) * PERSISTENCE
 
     return n
-# Function to display the height map
+# Fonction pour afficher la carte des hauteurs
 def display_height_map(map):
     fig, ax = plt.subplots()
     im = ax.imshow(map, cmap=reduced_cmap, vmin=0, vmax=1)  # Utiliser vmin=0 et vmax=1
     fig.colorbar(im, ax=ax)
     plt.show()
-# Main function
+# Fonction principale 
 def main():
     # Seed the random number generator
     seed = int(time.time())
     random.seed(seed)
 
-    # Generate the Perlin noise table
+    # Généré la table du bruit de Perlin 
     generate_perlin_noise()
 
-    # Generate a height map with multiple octaves of Perlin noise
+    # Générer une carte de hauteur avec plusieurs octaves de bruit Perlin
     width = 1250
     height = 1250
     scale = 25
     map = generate_height_map(width, height, scale)
 
-    # Display the height map
+    # afficher la carte des hauteurs
     display_height_map(map)
 
 if __name__ == '__main__':
