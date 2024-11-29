@@ -1,0 +1,43 @@
+import pdfplumber
+import csv
+import re
+
+def extraire_texte_nettoye(pdf_path):
+    texte_complet = ""
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page_num, page in enumerate(pdf.pages):
+            # Extraire le texte brut de la page
+            texte = page.extract_text()
+
+            if texte:
+                # Nettoyer les sauts de ligne excessifs (par exemple, plusieurs sauts de ligne d'affilée)
+                texte = re.sub(r'\n+', '\n', texte)  # Remplace les sauts de ligne multiples par un seul saut de ligne
+
+                # Supprimer des sections non nécessaires (par exemple, entêtes, pieds de page)
+                # Exemple : supprimer les informations répétitives comme "Licence MIASHS L2", etc.
+                texte = re.sub(r"(Licence MIASHS L2|Jean-François Pradat-Peyre|Université Paris Nanterre)", "", texte)
+
+                # Ajouter un saut de ligne pour marquer la fin de chaque page
+                texte_complet += texte.strip() + "\n\n"  # On ajoute un double saut de ligne pour marquer la fin de la page
+
+    return texte_complet
+
+def structurer_texte(texte):
+    # Ajouter des titres ou des sous-titres pour les sections principales
+    texte = re.sub(r'(Introduction|Chapitre \d+|Conclusion)', r'\n\n# \1\n', texte)
+
+    # Ajouter des puces ou des numéros pour les concepts ou étapes
+    texte = re.sub(r'(\d+\.\s)', r'\n- \1', texte)
+
+    return texte
+
+# Spécifie le chemin du fichier PDF (assure-toi que le fichier est bien téléchargé sur Replit)
+pdf_path = "CM-OSU 5 Processus et Ordonnacement.pdf"  # Remplace par le nom réel de ton fichier PDF
+
+# Extraction du texte
+texte_cours = extraire_texte_nettoye(pdf_path)
+texte_structure = structurer_texte(texte_cours)
+
+# Affichage du texte structuré
+print(texte_structure)
