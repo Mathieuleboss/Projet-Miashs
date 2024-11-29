@@ -1,0 +1,27 @@
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Exemples de questions générées par l'LLM
+questions = [
+    {"question": "Quel est le capital de la France ?", "options": ["Paris", "Berlin", "Madrid", "Rome"], "answer": "Paris"},
+    {"question": "Combien de continents y a-t-il ?", "options": ["5", "6", "7", "8"], "answer": "7"},
+]
+
+@app.route('/')
+def home():
+    # Cette fonction affiche le fichier index.html à partir du dossier templates
+    return render_template('index.html', questions=questions)
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    score = 0
+    # Vérifie les réponses envoyées par l'utilisateur
+    for i, question in enumerate(questions):
+        user_answer = request.form.get(f"q{i}")  # Récupère la réponse de l'utilisateur
+        if user_answer == question['answer']:
+            score += 1
+    return f"Votre score est : {score}/{len(questions)}"
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=3000)  # Rep
