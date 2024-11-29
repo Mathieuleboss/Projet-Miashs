@@ -1,0 +1,50 @@
+import pdfplumber
+import csv
+import re
+import os
+
+def extraire_texte_nettoye(pdf_path):
+    texte_complet = ""
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page_num, page in enumerate(pdf.pages):
+            # Extraire le texte brut de la page
+            texte = page.extract_text()
+
+            if texte:
+                # Nettoyer les sauts de ligne excessifs (par exemple, plusieurs sauts de ligne d'affilée)
+                texte = re.sub(r'\n+', '\n', texte)  # Remplace les sauts de ligne multiples par un seul saut de ligne
+
+                # Supprimer des sections non nécessaires (par exemple, entêtes, pieds de page)
+                # Exemple : supprimer les informations répétitives comme "Licence MIASHS L2", etc.
+                texte = re.sub(r"(Licence MIASHS L2|Jean-François Pradat-Peyre|Université Paris Nanterre)", "", texte)
+
+                # Ajouter un saut de ligne pour marquer la fin de chaque page
+                texte_complet += texte.strip() + "\n\n"  # On ajoute un double saut de ligne pour marquer la fin de la page
+
+    return texte_complet
+
+# Spécifie le chemin du fichier PDF (assure-toi que le fichier est bien téléchargé sur Replit)
+pdf_path = "CM-OSU 5 Processus et Ordonnacement.pdf"  # Remplace par le nom réel de ton fichier PDF
+
+# Extraction du texte
+texte_cours = extraire_texte_nettoye(pdf_path)
+
+# Affichage du texte extrait (les 500 premiers caractères pour vérifier)
+print(texte_cours[:500])
+
+def extraire_tableaux(pdf_path):
+    with pdfplumber.open(pdf_path) as pdf:
+        for page_num, page in enumerate(pdf.pages):
+            # Extraire tous les tableaux présents dans la page
+            tableaux = page.extract_tables()
+            for i, tableau in enumerate(tableaux):
+                print(f"Tableau trouvé à la page {page_num + 1}, tableau {i + 1}")
+                # Sauvegarder le tableau dans un fichier CSV pour chaque page
+                with open(f'tableau_page_{page_num+1}_tableau_{i+1}.csv', 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    for ligne in tableau:
+                        writer.writerow(ligne)
+
+# Exemple d'utilisation
+extraire_tableaux(pdf_path)
