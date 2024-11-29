@@ -2,6 +2,12 @@ import os
 from PIL import Image
 import pdfplumbe
 
+with pdfplumber.open(pdf_path) as pdf:
+    for page_num, page in enumerate(pdf.pages):
+        images = page.images
+        if images:
+            print(f"Page {page_num + 1} : {len(images)} image(s) détectée(s)")
+
 def extraire_images(pdf_path, dossier_sortie="images_extraite"):
     if not os.path.exists(dossier_sortie):
         os.makedirs(dossier_sortie)
