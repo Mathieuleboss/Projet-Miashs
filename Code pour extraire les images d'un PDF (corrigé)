@@ -1,0 +1,47 @@
+import os
+from PIL import Image
+import pdfplumber
+
+def extraire_images(pdf_path, dossier_sortie="images_extraites"):
+    # Vérification si le fichier existe
+    if not os.path.exists(pdf_path):
+        print(f"Fichier PDF introuvable : {pdf_path}")
+        return
+
+    # Création du dossier de sortie si nécessaire
+    if not os.path.exists(dossier_sortie):
+        os.makedirs(dossier_sortie)
+
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            for page_num, page in enumerate(pdf.pages):
+                if not page.images:
+                    print(f"Aucune image détectée à la page {page_num + 1}.")
+                    continue
+                
+                for image_num, image in enumerate(page.images):
+                    # Vérification des coordonnées nécessaires
+                    if {"x0", "x1", "top", "bottom"}.issubset(image.keys()):
+                        x0, top, x1, bottom = image["x0"], image["top"], image["x1"], image["bottom"]
+
+                        # Convertir la page en image PIL
+                        page_image = page.to_image()
+                        pil_image = page_image.original
+
+                        # Découper l'image de la page
+                        cropped_image = pil_image.crop((x0, top, x1, bottom))
+
+                        # Générer le nom de fichier et sauvegarder l'image
+                        image_filename = os.path.join(
+                            dossier_sortie, f"image_page_{page_num + 1}_image_{image_num + 1}.png"
+                        )
+                        cropped_image.save(image_filename)
+                        print(f"Image sauvegardée sous {image_filename}")
+                    else:
+                        print(f"Image {image_num + 1} à la page {page_num + 1} ne contient pas toutes les coordonnées nécessaires.")
+    except Exception as e:
+        print(f"Erreur lors de l'extraction des images : {e}")
+
+# Exemple d'utilisation
+pdf_path = "votre_fichier.pdf"  # Remplacez par le chemin réel de votre PDF
+extraire_images(pdf_path)
