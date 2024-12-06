@@ -1,43 +1,74 @@
-import pdfplumber
-import csv
-import re
+import pdfplumber  # Pour lire et extraire le texte des fichiers PDF
+import re  # Pour manipuler le texte avec des expressions régulières
 
 def extraire_texte_nettoye(pdf_path):
+    """
+    Extrait et nettoie le texte d'un fichier PDF.
+    :param pdf_path: Chemin vers le fichier PDF.
+    :return: Texte complet nettoyé.
+    """
     texte_complet = ""
 
+    # Ouvre le fichier PDF
     with pdfplumber.open(pdf_path) as pdf:
-        for page_num, page in enumerate(pdf.pages):
+        for page in pdf.pages:
             # Extraire le texte brut de la page
             texte = page.extract_text()
-
             if texte:
-                # Nettoyer les sauts de ligne excessifs (par exemple, plusieurs sauts de ligne d'affilée)
-                texte = re.sub(r'\n+', '\n', texte)  # Remplace les sauts de ligne multiples par un seul saut de ligne
+                # Nettoyer les sauts de ligne excessifs
+                texte = re.sub(r'\n+', '\n', texte)  # Remplace plusieurs sauts de ligne par un seul
 
-                # Supprimer des sections non nécessaires (par exemple, entêtes, pieds de page)
-                # Exemple : supprimer les informations répétitives comme "Licence MIASHS L2", etc.
-                texte = re.sub(r"(Licence MIASHS L2|Jean-François Pradat-Peyre|Université Paris Nanterre)", "", texte)
+                # Supprimer des sections non nécessaires (entêtes, pieds de page spécifiques)
+                texte = re.sub(
+                    r"(Licence MIASHS L2|Jean-François Pradat-Peyre|Université Paris Nanterre)",
+                    "",
+                    texte
+                )
 
-                # Ajouter un saut de ligne pour marquer la fin de chaque page
-                texte_complet += texte.strip() + "\n\n"  # On ajoute un double saut de ligne pour marquer la fin de la page
+                # Ajouter un double saut de ligne pour marquer la fin de chaque page
+                texte_complet += texte.strip() + "\n\n"
 
     return texte_complet
 
 def structurer_texte(texte):
-    # Ajouter des titres ou des sous-titres pour les sections principales
+    """
+    Structure le texte en ajoutant des titres et des puces pour une meilleure lisibilité.
+    :param texte: Texte brut nettoyé.
+    :return: Texte structuré.
+    """
+    # Ajouter des titres pour les sections principales
     texte = re.sub(r'(Introduction|Chapitre \d+|Conclusion)', r'\n\n# \1\n', texte)
 
-    # Ajouter des puces ou des numéros pour les concepts ou étapes
+    # Ajouter des puces pour les éléments numérotés
     texte = re.sub(r'(\d+\.\s)', r'\n- \1', texte)
 
     return texte
 
-# Spécifie le chemin du fichier PDF (assure-toi que le fichier est bien téléchargé sur Replit)
-pdf_path = "CM-OSU 5 Processus et Ordonnacement.pdf"  # Remplace par le nom réel de ton fichier PDF
+def main():
+    """
+    Point d'entrée principal du script.
+    - Extrait le texte d'un PDF.
+    - Structure le texte pour une meilleure lisibilité.
+    - Affiche le résultat.
+    """
+    # Spécifie le chemin du fichier PDF
+    pdf_path = "CM-OSU 5 Processus et Ordonnacement.pdf"  # Remplace par le chemin de ton fichier
 
-# Extraction du texte
-texte_cours = extraire_texte_nettoye(pdf_path)
-texte_structure = structurer_texte(texte_cours)
+    try:
+        # Extraction du texte nettoyé
+        texte_cours = extraire_texte_nettoye(pdf_path)
 
-# Affichage du texte structuré
-print(texte_structure)
+        # Structuration du texte
+        texte_structure = structurer_texte(texte_cours)
+
+        # Affichage du texte structuré
+        print(texte_structure)
+
+    except FileNotFoundError:
+        print(f"Erreur : Le fichier '{pdf_path}' est introuvable.")
+    except Exception as e:
+        print(f"Une erreur est survenue : {e}")
+
+# Appeler la fonction principale
+if __name__ == "__main__":
+    main()
