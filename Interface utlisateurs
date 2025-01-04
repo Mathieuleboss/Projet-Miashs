@@ -1,0 +1,220 @@
+Étape 1 : Créer un nouveau composant React pour l'interface
+Tu vas créer deux composants principaux :
+
+FileUpload.js : Un composant pour télécharger un fichier.
+QuestionCard.js : Un composant pour afficher les questions du QCM et permettre à l'utilisateur de répondre.
+Structure du dossier React
+bash
+----------------code--------------------
+/frontend
+  /src
+    /components
+      FileUpload.js
+      QuestionCard.js
+    App.js
+----------------code--------------------
+Étape 2 : Créer le composant FileUpload.js
+Ce composant permettra à l'utilisateur de télécharger un fichier de cours (par exemple, un fichier PDF, Word, ou texte) et enverra ce fichier au backend pour générer les questions.
+
+Crée un fichier FileUpload.js dans le dossier /src/components/.
+
+Code pour le composant FileUpload.js :
+
+jsx
+----------------code--------------------
+import React, { useState } from "react";
+
+function FileUpload({ onQuestionsGenerated }) {
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleFileSubmit = async () => {
+    if (!file) {
+      setError("Veuillez sélectionner un fichier.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      onQuestionsGenerated(data.questions);  // Envoie les questions à l'App.js
+    } catch (error) {
+      setError("Erreur lors du traitement du fichier.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Upload de votre fichier</h2>
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleFileSubmit} disabled={loading}>
+        {loading ? "En traitement..." : "Envoyer"}
+      </button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+}
+
+export default FileUpload;
+----------------code--------------------
+Explication du code :
+Gestion des fichiers : L'utilisateur peut sélectionner un fichier avec <input type="file" />. Le fichier est ensuite envoyé au backend lorsque l'utilisateur clique sur le bouton "Envoyer".
+Gestion du chargement et des erreurs : Un état loading est utilisé pour afficher un message lorsque le fichier est en cours de traitement. L'état error est utilisé pour afficher des erreurs si quelque chose ne va pas.
+Étape 3 : Créer le composant QuestionCard.js
+Le composant QuestionCard.js affichera chaque question générée et permettra à l'utilisateur de répondre.
+
+Crée un fichier QuestionCard.js dans le dossier /src/components/.
+
+Code pour le composant QuestionCard.js :
+
+jsx
+----------------code--------------------
+import React, { useState } from "react";
+
+function QuestionCard({ question, index }) {
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+
+  const handleAnswerChange = (e) => {
+    setSelectedAnswer(e.target.value);
+  };
+
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <h3>Question {index + 1}: {question.text}</h3>
+      {question.options.map((option, idx) => (
+        <div key={idx}>
+          <label>
+            <input
+              type="radio"
+              name={`question${index}`}
+              value={option}
+              onChange={handleAnswerChange}
+              checked={selectedAnswer === option}
+            />
+            {option}
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default QuestionCard;
+----------------code--------------------
+Explication du code :
+Affichage des questions : Le composant affiche la question et ses options sous forme de boutons radio.
+Sélection des réponses : L'utilisateur peut sélectionner une réponse pour chaque question.
+Gestion de l'état de la réponse sélectionnée : Chaque question a un état selectedAnswer qui garde en mémoire la réponse sélectionnée.
+Étape 4 : Mettre tout ensemble dans App.js
+Maintenant que tu as créé les deux composants, tu vas les intégrer dans le fichier principal App.js.
+
+Modifie App.js pour utiliser les composants FileUpload et QuestionCard.
+
+Code pour App.js :
+
+jsx
+----------------code--------------------
+import React, { useState } from "react";
+import FileUpload from "./components/FileUpload";
+import QuestionCard from "./components/QuestionCard";
+
+function App() {
+  const [questions, setQuestions] = useState([]);
+
+  const handleQuestionsGenerated = (generatedQuestions) => {
+    setQuestions(generatedQuestions);
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Générateur de QCM</h1>
+
+      <FileUpload onQuestionsGenerated={handleQuestionsGenerated} />
+
+      {questions.length > 0 && (
+        <div>
+          <h2>Répondez aux questions :</h2>
+          {questions.map((question, index) => (
+            <QuestionCard key={index} question={question} index={index} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+----------------code--------------------
+Explication du code :
+Gestion de l'état des questions : Lorsque les questions sont générées par le backend, elles sont envoyées au parent (App.js) via la fonction onQuestionsGenerated et stockées dans l'état questions.
+Affichage des questions : Si des questions sont disponibles, elles sont affichées sous forme de cartes avec des boutons radio pour permettre à l'utilisateur de répondre.
+Étape 5 : Style de base (facultatif)
+Si tu veux ajouter un peu de style, tu peux simplement utiliser des styles en ligne comme dans l'exemple ci-dessus ou utiliser un fichier CSS.
+
+Exemple simple de style CSS dans App.css :
+
+css
+----------------code--------------------
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+  color: #333;
+}
+----------------code--------------------
+Assure-toi d'importer ce fichier CSS dans App.js :
+
+jsx
+----------------code--------------------
+import './App.css';
+----------------code--------------------
+Étape 6 : Lancer le projet
+Si tu ne l'as pas encore fait, démarre ton serveur backend (Node.js + Express) avec :
+
+bash
+----------------code--------------------
+node server.js
+----------------code--------------------
+Lance ton application React avec :
+
+bash
+----------------code--------------------
+npm start
+----------------code--------------------
+Cela ouvrira ton application dans le navigateur à http://localhost:3000, où tu pourras tester l'interface.
+
+Résumé
+Tu as maintenant une interface simple qui permet à un utilisateur de :
+
+Télécharger un fichier.
+Envoyer ce fichier au backend pour générer un QCM.
+Voir et répondre aux questions générées.
+L'interface est facile à comprendre et offre une expérience utilisateur fluide grâce à React. Si tu souhaites améliorer cette interface (par exemple, en ajoutant plus de styles ou de fonctionnalités comme la validation des réponses), tu peux le faire en suivant cette structure de base.
