@@ -1,201 +1,179 @@
-1. Configuration du Projet
-Structure du Projet :
+Étape 1 : Installer Node.js et npm
+Avant de commencer à créer la structure de ton projet, tu dois t'assurer que Node.js et npm (Node Package Manager) sont installés sur ta machine.
 
+Vérifie si Node.js est installé : Ouvre un terminal (ou une invite de commande) et tape :
 
-/qcm-generator
-    /client  # Frontend
-        /public
-        /src
-            /components
-                UploadForm.js
-                QCM.js
-            App.js
-            index.js
-        package.json
-    /server  # Backend
-        /routes
-            upload.js
-        /models
-            File.js
-        /controllers
-            uploadController.js
-        server.js
-        package.json
-    package.json
-2. Frontend avec React.js
-client/package.json :
+bash
+------------------code------------------
+node -v
+------------------code------------------
+Si Node.js est installé, tu devrais voir une version affichée, par exemple v16.13.0. Si ce n'est pas le cas, télécharge et installe Node.js à partir de nodejs.org.
 
+Vérifie si npm est installé : Tape dans le terminal :
 
-{
-  "name": "client",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3"
-  }
-}
-client/src/components/UploadForm.js :
+bash
+------------------code------------------
+npm -v
+------------------code------------------
+npm devrait être installé automatiquement avec Node.js.
 
+Étape 2 : Créer le dossier principal de ton projet
+Ouvre VS Code.
+Crée un nouveau dossier pour ton projet, par exemple qcm-generator.
+Ouvre ce dossier dans VS Code.
+Étape 3 : Créer la structure du projet
+Initialiser un projet Node.js pour ton backend (et gérer les dépendances).
+Dans le terminal intégré de VS Code, tape :
 
-import React, { useState } from 'react';
-import axios from 'axios';
+bash
+------------------code------------------
+npm init -y
+------------------code------------------
+Cela va créer un fichier package.json par défaut, qui va gérer les dépendances de ton projet.
 
-const UploadForm = () => {
-    const [file, setFile] = useState(null);
-    const [qcm, setQCM] = useState(null);
+Installer les dépendances nécessaires pour le backend :
+Express pour gérer le serveur web.
+Multer pour gérer l'upload des fichiers.
+Axios pour faire des requêtes HTTP (pour interagir avec Ollama).
+Dans le terminal de VS Code, tape :
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
+bash
+------------------code------------------
+npm install express multer axios
+Créer la structure des dossiers : Crée les dossiers suivants :
+bash
+Copier le code
+/project-root
+  /frontend   # Pour l'application React
+  /backend    # Pour l'application Express
+  /public     # Pour les fichiers statiques (si nécessaire)
+------------------code------------------
+Dans VS Code, tu peux soit utiliser l'explorateur de fichiers pour créer ces dossiers, soit utiliser le terminal avec ces commandes :
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('file', file);
+bash
+------------------code------------------
+mkdir frontend backend public
+------------------code------------------
+Création du fichier pour le backend : Crée un fichier server.js dans le dossier backend. Ce fichier sera ton point d'entrée pour démarrer le serveur Express.
 
-        try {
-            const response = await axios.post('/api/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            setQCM(response.data.qcm);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
+Création du dossier et fichier pour le frontend (React) : Nous allons maintenant créer l'application React dans le dossier frontend.
 
-    return (
-        <div>
-            <h1>Téléchargez votre fichier de cours</h1>
-            <form onSubmit={handleSubmit}>
-                <input type="file" onChange={handleFileChange} />
-                <button type="submit">Télécharger</button>
-            </form>
-            {qcm && <QCM qcm={qcm} />}
-        </div>
-    );
-};
+Étape 4 : Créer le frontend avec React
+Initialiser l'application React dans le dossier frontend : Ouvre un terminal dans VS Code, navigue jusqu'au dossier frontend et tape cette commande :
 
-export default UploadForm;
-client/src/components/QCM.js :
+bash
+------------------code------------------
+npx create-react-app .
+------------------code------------------
+Cela va créer une application React dans le dossier frontend. Il va générer tous les fichiers nécessaires (comme package.json, src/, etc.).
 
+Démarrer le projet React : Une fois l'installation terminée, tu peux démarrer l'application React en tapant :
 
-import React from 'react';
+bash
+------------------code------------------
+npm start
+------------------code------------------
+Cela démarrera le serveur de développement React et ouvrira automatiquement ton application dans le navigateur à l'adresse http://localhost:3000.
 
-const QCM = ({ qcm }) => {
-    return (
-        <div>
-            {qcm.map((question, index) => (
-                <div key={index}>
-                    <p>{question.question}</p>
-                    {question.options.map((option, idx) => (
-                        <div key={idx}>
-                            <input type="radio" name={`question-${index}`} value={option} /> {option}
-                        </div>
-                    ))}
-                </div>
-            ))}
-        </div>
-    );
-};
+Étape 5 : Organiser les fichiers dans le dossier frontend
+Modifie la structure du dossier frontend : Après avoir initialisé React, tu auras une structure de fichiers comme suit :
 
-export default QCM;
-client/src/App.js :
+bash------------------code------------------
 
+/frontend
+  /node_modules
+  /public
+    index.html
+  /src
+    App.js
+    index.js
+    /components
+      FileUpload.js
+      QuestionCard.js
+------------------code------------------
+Créer les composants nécessaires :
 
-import React from 'react';
-import UploadForm from './components/UploadForm';
+FileUpload.js : Composant pour télécharger le fichier.
+QuestionCard.js : Composant pour afficher chaque question du QCM.
+Étape 6 : Configurer le backend avec Express
+Créer un fichier server.js dans le dossier backend avec le code suivant pour initialiser le serveur Express :
 
-const App = () => {
-    return (
-        <div>
-            <UploadForm />
-        </div>
-    );
-};
-
-export default App;
-3. Backend avec Node.js et Express.js
-server/package.json :
-
-
-{
-  "name": "server",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "dependencies": {
-    "express": "^4.17.1",
-    "multer": "^1.4.2",
-    "nlp.js": "^4.16.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.7"
-  }
-}
-server/server.js :
-
-
-const express = require('express');
-const multer = require('multer');
-const uploadController = require('./controllers/uploadController');
+js
+------------------code------------------
+const express = require("express");
+const multer = require("multer");
+const axios = require("axios");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: "uploads/" });
 
 app.use(express.json());
-app.use(express.static('../client/build'));
 
-app.post('/api/upload', upload.single('file'), uploadController.uploadFile);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.post("/upload", upload.single("file"), async (req, res) => {
+  const filePath = path.join(__dirname, req.file.path);
+  const text = await extractTextFromFile(filePath);
+  const questions = await generateQuestionsWithOllama(text);
+  res.json({ questions });
+  fs.unlinkSync(filePath);
 });
-server/controllers/uploadController.js :
 
-
-const { Container, NlpManager } = require('nlp.js');
-const fs = require('fs');
-
-const container = new Container();
-const manager = new NlpManager({ container });
-
-exports.uploadFile = async (req, res) => {
-    const filePath = req.file.path;
-    const text = fs.readFileSync(filePath, 'utf8');
-
-    const sentences = text.split('.');
-    const questions = sentences.slice(0, 5).map(sentence => ({
-        question: sentence.trim(),
-        options: ["Oui", "Non"]
-    }));
-
-    res.json({ qcm: questions });
+const extractTextFromFile = async (filePath) => {
+  // Implémente la logique d'extraction du texte
+  return "Texte extrait du fichier";
 };
-4. Démarrer le Projet
-Démarrer le Frontend :
 
+const generateQuestionsWithOllama = async (text) => {
+  try {
+    const response = await axios.post("https://api.ollama.com/generate", {
+      prompt: `Génère un QCM à partir de ce texte : ${text}`,
+      model: "gpt-3.5-turbo",
+    });
+    return response.data.questions;
+  } catch (error) {
+    console.error("Erreur de génération des questions :", error);
+    return [];
+  }
+};
 
-cd client
-npm install
-npm start
-Démarrer le Backend :
+app.listen(5000, () => {
+  console.log("Serveur backend démarré sur http://localhost:5000");
+});
+------------------code------------------
+Démarrer le backend : Dans le terminal de VS Code, assure-toi de te trouver dans le dossier backend et tape :
 
+bash
+------------------code------------------
+node server.js
+------------------code------------------
+Cela démarrera le serveur Express sur http://localhost:5000.
 
-cd server
-npm install
-npm run dev
+Étape 7 : Connecter le frontend et le backend
+Appels API dans le frontend : Dans le fichier FileUpload.js du frontend, modifie le code pour appeler l'API backend que nous avons créée (http://localhost:5000/upload) et afficher les questions générées. Par exemple :
+
+jsx
+------------------code------------------
+const handleFileSubmit = async () => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("http://localhost:5000/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+  setQuestions(data.questions); // Affichage des questions générées
+};
+------------------code------------------
+Test du flux complet :
+
+Assure-toi que ton serveur backend fonctionne.
+Démarre l'application React (frontend).
+Télécharge un fichier via l'interface frontend, le serveur backend traite le fichier, génère des questions via Ollama, et renvoie ces questions au frontend pour que l'utilisateur puisse y répondre.
+Étape 8 : Déploiement (optionnel)
+Lorsque tu seras prêt à déployer ton projet :
+
+Frontend : Déploie l'application React sur Vercel, Netlify, ou GitHub Pages.
+Backend : Déploie le backend Express sur des plateformes comme Heroku, Render, ou DigitalOcean.
