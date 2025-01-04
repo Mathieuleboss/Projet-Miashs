@@ -1,0 +1,201 @@
+1. Configuration du Projet
+Structure du Projet :
+
+
+/qcm-generator
+    /client  # Frontend
+        /public
+        /src
+            /components
+                UploadForm.js
+                QCM.js
+            App.js
+            index.js
+        package.json
+    /server  # Backend
+        /routes
+            upload.js
+        /models
+            File.js
+        /controllers
+            uploadController.js
+        server.js
+        package.json
+    package.json
+2. Frontend avec React.js
+client/package.json :
+
+
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3"
+  }
+}
+client/src/components/UploadForm.js :
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const UploadForm = () => {
+    const [file, setFile] = useState(null);
+    const [qcm, setQCM] = useState(null);
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await axios.post('/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            setQCM(response.data.qcm);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    return (
+        <div>
+            <h1>Téléchargez votre fichier de cours</h1>
+            <form onSubmit={handleSubmit}>
+                <input type="file" onChange={handleFileChange} />
+                <button type="submit">Télécharger</button>
+            </form>
+            {qcm && <QCM qcm={qcm} />}
+        </div>
+    );
+};
+
+export default UploadForm;
+client/src/components/QCM.js :
+
+
+import React from 'react';
+
+const QCM = ({ qcm }) => {
+    return (
+        <div>
+            {qcm.map((question, index) => (
+                <div key={index}>
+                    <p>{question.question}</p>
+                    {question.options.map((option, idx) => (
+                        <div key={idx}>
+                            <input type="radio" name={`question-${index}`} value={option} /> {option}
+                        </div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export default QCM;
+client/src/App.js :
+
+
+import React from 'react';
+import UploadForm from './components/UploadForm';
+
+const App = () => {
+    return (
+        <div>
+            <UploadForm />
+        </div>
+    );
+};
+
+export default App;
+3. Backend avec Node.js et Express.js
+server/package.json :
+
+
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "multer": "^1.4.2",
+    "nlp.js": "^4.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
+server/server.js :
+
+
+const express = require('express');
+const multer = require('multer');
+const uploadController = require('./controllers/uploadController');
+
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
+app.use(express.json());
+app.use(express.static('../client/build'));
+
+app.post('/api/upload', upload.single('file'), uploadController.uploadFile);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+server/controllers/uploadController.js :
+
+
+const { Container, NlpManager } = require('nlp.js');
+const fs = require('fs');
+
+const container = new Container();
+const manager = new NlpManager({ container });
+
+exports.uploadFile = async (req, res) => {
+    const filePath = req.file.path;
+    const text = fs.readFileSync(filePath, 'utf8');
+
+    const sentences = text.split('.');
+    const questions = sentences.slice(0, 5).map(sentence => ({
+        question: sentence.trim(),
+        options: ["Oui", "Non"]
+    }));
+
+    res.json({ qcm: questions });
+};
+4. Démarrer le Projet
+Démarrer le Frontend :
+
+
+cd client
+npm install
+npm start
+Démarrer le Backend :
+
+
+cd server
+npm install
+npm run dev
